@@ -22,10 +22,10 @@ WHERE hire_date LIKE '199%'
 ORDER BY hire_date
 LIMIT 5;
 
--- 4. 10th page of results, with 5 results per page means we have to skip the first 50 results using OFFSET. 
+-- 4. 10th page of results, with 5 results per page means we have to skip the first 45 results (9 pages) using OFFSET. 
 SELECT *
 FROM employees
 WHERE hire_date LIKE '199%'
 	AND birth_date LIKE '%12-25'
 ORDER BY hire_date
-LIMIT 5 OFFSET 50;
+LIMIT 5 OFFSET 45;
