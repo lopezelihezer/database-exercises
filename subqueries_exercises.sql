@@ -70,10 +70,80 @@ WHERE emp_no IN(
 
 -- 6. How many current salaries are within 1 standard deviation of the current highest salary? (Hint: you can use a built in function to calculate the standard deviation.) What percentage of all salaries is this?
 
+SELECT 
+FROM salaries
+WHERE emp_no IN (
+		SELECT emp_no, 
+		FROM salaries
+		WHERE salary IN(
+		
+		)
+
+(SELECT stddev(salary) FROM salaries); # standard deviation 
+
+(SELECT max(salary) FROM salaries WHERE to_date > curdate()); # Max historical salary
+
+SELECT emp_no  
+FROM salaries 
+WHERE salary > 
+((SELECT max(salary) FROM salaries WHERE to_date > curdate()) - 
+(SELECT stddev(salary) FROM salaries))
+AND to_date > curdate(); # Gives me the employee numbers of all curent salaries one stardard deviation below the max. 78
+
+
+
+SELECT count(salary) from salaries WHERE to_date > curdate(); #historical: 2844047 current: 240124
+
+-- 0.0325%
+SELECT (Num_of_Employees / 
+			(SELECT count(salary) from salaries WHERE to_date > curdate())) * 100 AS Percentage
+FROM (SELECT count(emp_no) AS Num_of_Employees
+		FROM (
+		SELECT emp_no  
+		FROM salaries 
+		WHERE salary > 
+				((SELECT max(salary) FROM salaries WHERE to_date > curdate()) - 
+				(SELECT stddev(salary) FROM salaries))
+		AND to_date > curdate()
+				) as t1
+		) as t2;
+
+
 -- BONUS
 
 -- Find all the department names that currently have female managers.
+/*
+Customer Service
+Development
+Finance
+Human Resources
+Production
+Quality Management
+Research
+*/
+SELECT dept_name FROM departments WHERE dept_no IN 
+(SELECT dept_no FROM dept_manager WHERE emp_no IN
+(SELECT emp_no FROM employees WHERE gender = 'F')
+);
 
 -- Find the first and last name of the employee with the highest salary.
+-- Tokuyasu Pesch
+SELECT first_name, last_name FROM employees WHERE emp_no =
+(SELECT emp_no FROM salaries WHERE salary = 
+(SELECT max(salary) FROM salaries
+));
 
 -- Find the department name that the employee with the highest salary works in.
+-- Sales
+SELECT dept_name FROM departments WHERE dept_no =
+	(	SELECT dept_no 
+		FROM dept_emp 
+		WHERE emp_no =
+				(SELECT emp_no 
+				FROM salaries 
+				WHERE salary = 
+						(SELECT max(salary) 
+						FROM salaries
+						)
+			  )
+	);
