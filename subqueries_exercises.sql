@@ -85,25 +85,30 @@ WHERE emp_no IN (
 
 SELECT emp_no  
 FROM salaries 
-WHERE salary > 
+WHERE salary >= 
 ((SELECT max(salary) FROM salaries WHERE to_date > curdate()) - 
 (SELECT stddev(salary) FROM salaries))
 AND to_date > curdate(); # Gives me the employee numbers of all curent salaries one stardard deviation below the max. 78
 
+SELECT emp_no  
+FROM salaries 
+WHERE salary >= 
+(SELECT max(salary) - stddev(salary) FROM salaries WHERE to_date > curdate())
+AND to_date > curdate(); # Assumes only current salaries.  83 rows. 
 
 
 SELECT count(salary) from salaries WHERE to_date > curdate(); #historical: 2844047 current: 240124
 
--- 0.0325%
+-- 0.0346%
 SELECT (Num_of_Employees / 
 			(SELECT count(salary) from salaries WHERE to_date > curdate())) * 100 AS Percentage
 FROM (SELECT count(emp_no) AS Num_of_Employees
 		FROM (
 		SELECT emp_no  
 		FROM salaries 
-		WHERE salary > 
-				((SELECT max(salary) FROM salaries WHERE to_date > curdate()) - 
-				(SELECT stddev(salary) FROM salaries))
+		WHERE salary >= 
+				(SELECT max(salary) - stddev(salary) FROM salaries WHERE to_date > curdate())
+
 		AND to_date > curdate()
 				) as t1
 		) as t2;
