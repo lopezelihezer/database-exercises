@@ -1,12 +1,17 @@
 -- Subqueries Exercises
 
--- 1. Find all the current employees with the same hire date as employee 101010 using a sub-query.
+-- 1. Find all the current employees with the same hire date as employee 101010 using a sub-query. 55
 USE employees;
 SELECT * FROM employees
 WHERE hire_date IN (
 		SELECT hire_date
 		FROM employees
 		WHERE emp_no = 101010 
+		)
+		and emp_no in (
+		select emp_no 
+		from dept_emp
+		where to_date > curdate()
 		);
 
 
@@ -20,33 +25,26 @@ WHERE emp_no IN(
 		WHERE first_name = 'Aamod'
 		
 )
-AND to_date > curdate();
+AND to_date > curdate()
+GROUP BY title;
 
--- 3. How many people in the employees table are no longer working for the company? Give the answer in a comment in your code. 300024 no longer working for the company. 
+-- 3. How many people in the employees table are no longer working for the company? Give the answer in a comment in your code. 59900 no longer working for the company. 
 
-SELECT emp_no, first_name, last_name FROM employees
-WHERE emp_no IN(
+SELECT emp_no, first_name, last_name 
+FROM employees
+WHERE emp_no NOT IN(
 		SELECT emp_no
-		FROM salaries
-		WHERE to_date < curdate()
-);
+		FROM dept_emp
+		WHERE to_date > curdate()
+						);
 
 -- 4. Find all the current department managers that are female. List their names in a comment in your code.
 
 /*
 Isamu	Legleitner	F
-Shirish	Ossenbruggen	F
 Karsten	Sigstam	F
-Krassimir	Wegerle	F
-Rosine	Cools	F
 Leon	DasSarma	F
-Peternela	Onuegbe	F
-Rutger	Hofmeyr	F
-Sanjoy	Quadeer	F
 Hilary	Kambil	F
-Tonny	Butterworth	F
-Marjo	Giarratana	F
-Xiaobin	Spinelli	F
 */
 
 SELECT first_name, last_name, gender
@@ -55,6 +53,7 @@ WHERE emp_no IN(
 		SELECT emp_no
 		FROM dept_manager
 		WHERE gender = 'F'
+		AND to_date > now()
 );
 
 -- 5. Find all the employees who currently have a higher salary than the companies overall, historical average salary. 154543
@@ -69,15 +68,6 @@ WHERE emp_no IN(
 
 
 -- 6. How many current salaries are within 1 standard deviation of the current highest salary? (Hint: you can use a built in function to calculate the standard deviation.) What percentage of all salaries is this?
-
-SELECT 
-FROM salaries
-WHERE emp_no IN (
-		SELECT emp_no, 
-		FROM salaries
-		WHERE salary IN(
-		
-		)
 
 (SELECT stddev(salary) FROM salaries); # standard deviation 
 
@@ -118,18 +108,16 @@ FROM (SELECT count(emp_no) AS Num_of_Employees
 
 -- Find all the department names that currently have female managers.
 /*
-Customer Service
 Development
 Finance
 Human Resources
-Production
-Quality Management
 Research
 */
 SELECT dept_name FROM departments WHERE dept_no IN 
 (SELECT dept_no FROM dept_manager WHERE emp_no IN
-(SELECT emp_no FROM employees WHERE gender = 'F')
-);
+(SELECT emp_no FROM employees WHERE gender = 'F'
+AND to_date > curdate())
+) ;
 
 -- Find the first and last name of the employee with the highest salary.
 -- Tokuyasu Pesch
