@@ -2,7 +2,7 @@
 
 -- 1. Write a query that returns all employees (emp_no), their department number, their start date, their end date, and a new column 'is_current_employee' that is a 1 if the employee is still with the company and 0 if not.
 
-SELECT 	dept_emp.emp_no -- 10144
+SELECT 	e.emp_no -- 10144
 			hire_date,
 			dept_no,
 			to_date,
@@ -12,10 +12,9 @@ SELECT 	dept_emp.emp_no -- 10144
 									WHERE to_date > curdate()
 							), True, False
 				) AS is_current_employee
-FROM employees #emp_no, hire_date
-# JOIN (SELECT DISTINCT emp_no, dept_no, to_date  FROM dept_emp) AS no_dupes USING(emp_no); #dept_no, to_date
-JOIN dept_emp ON dept_emp.emp_no = employess.emp_no 
-JOIN (SELECT DISTINCT dept_emp.emp_no FROM dept_emp) AS extra;
+FROM employees AS e
+JOIN dept_emp using (emp_no); #emp_no, hire_date
+
 
 -- Example code:
 SELECT 
@@ -74,4 +73,49 @@ FROM employees;
 
 -- BONUS
 -- What is the current average salary for each of the following department groups: R&D, Sales & Marketing, Prod & QM, Finance & HR, Customer Service?
+-- Explore departments
+SELECT * FROM departments;
 
+
+SELECT *
+FROM 
+(SELECT t1.emp_no, t1.dept_no, t1.hire_date, t1.to_date, t1.current_employee -- Gives me employee number, department number, hire date and to date of all current employees.
+FROM (SELECT 
+	de.emp_no,
+	dept_no,
+	hire_date,
+	to_date,
+	IF(to_date > CURDATE(), 1, 0) AS current_employee
+FROM dept_emp AS de
+JOIN (SELECT -- gives me employee number and max_date of their last department. 
+			emp_no,
+			MAX(to_date) AS max_date
+		FROM dept_emp
+		GROUP BY emp_no) as last_dept 
+		ON de.emp_no = last_dept.emp_no
+			AND de.to_date = last_dept.max_date
+JOIN employees AS e ON e.emp_no = de.emp_no) as t1
+WHERE t1.current_employee = 1) AS t2 -- IF employee is still with company, keep
+ 
+ JOIN (SELECT   -- gives me current salaries
+			*
+		FROM salaries
+		WHERE to_date > curdate()
+		) AS t3 using(emp_no)	
+	; -- GROUP BY department number
+
+SELECT dept_name,
+        CASE 
+            WHEN dept_name IN ('research', 'development') THEN 'R&D'
+            WHEN dept_name IN ('sales', 'marketing') THEN 'Sales & Marketing' 
+            WHEN dept_name in ('Production', 'Quality Management') THEN 'Prod & QM'
+            ELSE dept_name
+            END AS dept_group,
+            	avg_salary
+FROM employees.departments;
+
+SELECT   -- gives me current salaries
+			*
+		FROM salaries
+		WHERE to_date > curdate()
+		;
