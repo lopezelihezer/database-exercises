@@ -1,1 +1,1 @@
-The contents of this file are just basic sql exercises. 
+The contents of this file are basic sql exercises. 
