@@ -65,4 +65,3 @@ FROM albums
 WHERE genre LIKE '%Rock%';
 # Alternatively you can use "LIKE" to find the word Rock in genre and then % to allow characters before and after. 
 # capitalization does not make a difference in using 'LIKE'
-
