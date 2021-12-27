@@ -1,4 +1,4 @@
--- Subqueries Exercises
+-- Subqueries Exercises Updated
 
 -- 1. Find all the current employees with the same hire date as employee 101010 using a sub-query. 55
 -- spacing is not necessarily important
